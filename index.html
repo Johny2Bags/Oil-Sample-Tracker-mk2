@@ -1642,6 +1642,10 @@
         function drawChart(data, parameter) {
             ctx.clearRect(0, 0, oilTrendChartCanvas.width, oilTrendChartCanvas.height);
 
+            // Set white background for the canvas
+            ctx.fillStyle = '#FFFFFF'; // White color
+            ctx.fillRect(0, 0, oilTrendChartCanvas.width, oilTrendChartCanvas.height);
+
             if (data.length === 0) {
                 ctx.font = '16px Inter';
                 ctx.textAlign = 'center';
