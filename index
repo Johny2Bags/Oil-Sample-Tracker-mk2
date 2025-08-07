@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer Oil Test Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            color: #2d3748; /* Dark text */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin: 24px auto;
+            max-width: 1200px;
+            width: 95%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        h1, h2, h3 {
+            color: #2b6cb0; /* Darker blue for headings */
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e0; /* Light gray border */
+            border-radius: 8px;
+            background-color: #edf2f7; /* Lighter gray background */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #4299e1; /* Blue focus border */
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Blue glow on focus */
+            outline: none;
+        }
+        button {
+            background-color: #4299e1; /* Blue button */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #3182ce; /* Darker blue on hover */
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background-color: #a0aec0; /* Gray button */
+        }
+        .btn-secondary:hover {
+            background-color: #718096; /* Darker gray on hover */
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            max-height: 90vh; /* Limit height for scrollability */
+            overflow-y: auto; /* Enable scrolling within modal */
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .message-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #48bb78; /* Green for success */
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            text-align: center;
+            font-weight: 600;
+        }
+        .message-box.error {
+            background-color: #e53e3e; /* Red for error */
+        }
+        .data-list-item {
+            background-color: #edf2f7;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            cursor: pointer; /* Indicate clickable */
+            transition: background-color 0.2s;
+        }
+        .data-list-item:hover {
+            background-color: #e2e8f0; /* Slightly darker on hover */
+        }
+        .data-list-item span {
+            font-size: 0.95rem;
+            color: #2d3748;
+            margin-right: 15px;
+        }
+        .data-list-item button {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+        .data-list-item .date {
+            font-weight: 600;
+            color: #2b6cb0;
+        }
+        .user-id-display {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 10px;
+            word-break: break-all; /* Ensure long IDs wrap */
+        }
+        canvas {
+            display: block;
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-width: 100%; /* Ensure canvas scales */
+            height: 400px; /* Fixed height for consistency, adjust as needed */
+        }
+        .graph-controls {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .graph-controls select {
+            flex: 1;
+            min-width: 150px;
+        }
+        .search-controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-controls input {
+            flex: 1;
+            min-width: 200px;
+        }
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 16px auto;
+                padding: 16px;
+            }
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .form-group label {
+                width: 100%;
+            }
+            .form-group input, .form-group select {
+                width: 100%;
+            }
+            .dga-grid {
+                grid-template-columns: 1fr; /* Stack DGA inputs on small screens */
+            }
+            .data-list-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .data-list-item span {
+                margin-bottom: 5px;
+            }
+            .data-list-item button {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+            }
+            .search-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-controls input, .search-controls button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <div class="container">
+        <h1 class="text-3xl mb-4 text-center">Transformer Oil Test Tracker</h1>
+
+        <!-- Site & Asset Management Section -->
+        <div class="site-asset-management-section bg-gray-100 p-4 rounded-lg mb-6 shadow-sm">
+            <h2 class="text-xl mb-3 text-blue-700">Site & Asset Management</h2>
+            <div class="flex flex-wrap items-center gap-4 mb-3">
+                <label for="siteSelect" class="font-bold text-gray-700 mb-0">Select Site:</label>
+                <select id="siteSelect" class="p-2 border rounded-lg bg-white flex-grow">
+                    <!-- Site options will be dynamically loaded here -->
+                </select>
+                <button id="createSiteBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                    + Create New Site
+                </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 mb-3" id="assetSelectionRow">
+                <label for="assetSelect" class="font-bold text-gray-700 mb-0">Select Asset:</label>
+                <select id="assetSelect" class="p-2 border rounded-lg bg-white flex-grow">
+                    <!-- Asset options will be dynamically loaded here -->
+                </select>
+                <button id="createAssetBtn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                    + Create New Asset
+                </button>
+                <button id="deleteAssetBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md" disabled>
+                    Delete Selected Asset
+                </button>
+            </div>
+            <p class="text-md font-semibold text-gray-800">Current Site: <span id="currentSiteNameDisplay" class="text-blue-600">None Selected</span></p>
+            <p class="text-md font-semibold text-gray-800">Current Asset: <span id="currentAssetNameDisplay" class="text-blue-600">None Selected</span></p>
+            <div id="currentAssetDetailsDisplay" class="text-sm text-gray-700 mt-2 grid grid-cols-1 md:grid-cols-2 gap-1">
+                <!-- Asset details will be displayed here -->
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 mb-6 justify-center">
+            <button id="newEntryBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                + New Test Entry
+            </button>
+            <button id="viewDataBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                View All Data
+            </button>
+            <button id="downloadAllGraphsBtn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                Download All Graphs (JPEG)
+            </button>
+            <button id="uploadPdfBtn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                Upload & Scan PDF
+            </button>
+        </div>
+
+        <div id="loadingIndicator" class="hidden text-center text-blue-600 font-semibold">
+            Loading...
+        </div>
+        <!-- User ID display is hidden as requested -->
+        <div id="userIdDisplay" class="user-id-display text-center mb-4 hidden"></div>
+
+        <!-- Graph Section -->
+        <h2 class="text-2xl mt-8 mb-4">Trend Analysis</h2>
+        <div class="graph-controls">
+            <label for="graphParamSelect" class="block text-gray-700 font-bold mb-0">Select Parameter:</label>
+            <select id="graphParamSelect" class="p-2 border rounded-lg bg-gray-100">
+                <option value="dielectricStrength">Withstood (kV average)</option>
+                <option value="acidity">Acidity (mg KOH/g)</option>
+                <option value="waterContent">Water Content (mg/kg)</option>
+                <option value="hydrogen">Hydrogen (ppm)</option>
+                <option value="methane">Methane (ppm)</option>
+                <option value="ethane">Ethane (ppm)</option>
+                <option value="ethylene">Ethylene (ppm)</option>
+                <option value="acetylene">Acetylene (ppm)</option>
+                <option value="carbonMonoxide">Carbon Monoxide (CO)</option>
+                <option value="carbonDioxide">Carbon Dioxide (CO2)</option>
+                <option value="nitrogen">Nitrogen (N2)</option>
+                <option value="oxygen">Oxygen (O2)</option>
+                <option value="totalCombustibleGas">Total Combustible Gas (ppm)</option>
+                <option value="totalDissolvedGas">Total Dissolved Gas (ppm)</option>
+                <option value="rogersRatio">Rogers Ratio</option>
+                <option value="furansHydroxymethylFurfuraldehyde">Furans-5-hydroxy-methyl-2-furfuraldehyde</option>
+                <option value="furansFurfuraldehyde">Furans-2-furfuraldehyde</option>
+                <option value="furansFurylMethylKetone">Furans-2-furyl-methyl-ketone</option>
+                <option value="furansMethylFurfuraldehyde">Furans-5-methyl-2-furfuraldehyde</option>
+                <option value="furansFurfurylAlcohol">Furans-2-furfuryl-alcohol</option>
+                <option value="estimatedDegreeOfPolymerisation">Estimated Degree of Polymerisation</option>
+                <option value="pcbsResult">Polychlorinated biphenyl (ppm)</option>
+                <!-- Add more parameters here if needed -->
+            </select>
+            <button id="downloadGraphBtn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                Download Graph
+            </button>
+        </div>
+        <canvas id="oilTrendChart"></canvas>
+
+        <!-- Data List Section -->
+        <h2 class="text-2xl mt-8 mb-4">All Test Entries for Current Asset</h2>
+        <div class="search-controls">
+            <input type="text" id="searchDataInput" placeholder="Search by Asset No, Date, or Type..." class="rounded-lg">
+            <button id="clearSearchBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                Clear Search
+            </button>
+        </div>
+        <div id="dataList" class="space-y-3">
+            <!-- Data entries will be loaded here -->
+            <p class="text-center text-gray-500" id="noDataMessage">No test data available yet for this asset. Add a new entry!</p>
+        </div>
+
+        <!-- The Modal for Data Entry -->
+        <div id="dataEntryModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2 class="text-2xl mb-4" id="dataEntryModalTitle">New Test Entry</h2>
+                <form id="oilTestForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- General Information (Asset Specific - pre-filled) -->
+                    <div class="md:col-span-2 text-lg font-semibold text-blue-700">General Information</div>
+                    <div class="form-group">
+                        <label for="dateOfSample">Date of Sample:</label>
+                        <input type="date" id="dateOfSample" name="dateOfSample" required class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="assetNo">Asset No:</label>
+                        <input type="text" id="assetNo" name="assetNo" placeholder="e.g., 359897" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="serialNo">Serial No:</label>
+                        <input type="text" id="serialNo" name="serialNo" placeholder="e.g., 119,707" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="make">Make:</label>
+                        <input type="text" id="make" name="make" placeholder="e.g., Newton" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type:</label>
+                        <input type="text" id="type" name="type" placeholder="e.g., Transformer" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="volume">Volume (Litres):</label>
+                        <input type="number" id="volume" name="volume" step="any" placeholder="e.g., 2111" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="testID">Insulating Medium:</label>
+                        <input type="text" id="testID" name="testID" placeholder="e.g., MIDEL 7131" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="samplePoint">Sample Point:</label>
+                        <input type="text" id="samplePoint" name="samplePoint" placeholder="e.g., Bottom of main tank" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="kVADating">KVA Rating:</label>
+                        <input type="number" id="kVADating" name="kVADating" placeholder="e.g., 1000" class="rounded-lg">
+                    </div>
+
+                    <!-- Oil Test Results -->
+                    <div class="md:col-span-2 text-lg font-semibold text-blue-700 mt-6">Oil Test Results</div>
+                    <div class="form-group">
+                        <label for="acidity">Acidity (mg KOH/g):</label>
+                        <input type="number" id="acidity" name="acidity" step="any" placeholder="e.g., 0.04" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="dielectricStrength">Withstood (kV average):</label>
+                        <input type="number" id="dielectricStrength" name="dielectricStrength" step="any" placeholder="e.g., 0.09" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="waterContent">Water Content (mg/Kg):</label>
+                        <input type="number" id="waterContent" name="waterContent" step="any" placeholder="e.g., 94" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="colour">Colour:</label>
+                        <input type="text" id="colour" name="colour" placeholder="e.g., Light yellow (1)" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="appearance">Appearance:</label>
+                        <input type="text" id="appearance" name="appearance" placeholder="e.g., Typical" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="odour">Odour:</label>
+                        <input type="text" id="odour" name="odour" placeholder="e.g., Typical" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="sediment">Sediment:</label>
+                        <select id="sediment" name="sediment" class="rounded-lg">
+                            <option value="Satisfactory">Satisfactory</option>
+                            <option value="Unsatisfactory">Unsatisfactory</option>
+                            <option value="Action Required">Action Required</option>
+                            <option value="Clear">Clear</option>
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fibres">Fibres:</label>
+                        <input type="text" id="fibres" name="fibres" placeholder="e.g., Fine" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="hydrogen">Hydrogen (ppm):</label>
+                        <input type="number" id="hydrogen" name="hydrogen" step="any" placeholder="e.g., 0" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="methane">Methane (ppm):</label>
+                        <input type="number" id="methane" name="methane" step="any" placeholder="e.g., 2" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="ethylene">Ethylene (ppm):</label>
+                        <input type="number" id="ethylene" name="ethylene" step="any" placeholder="e.g., 175" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="ethane">Ethane (ppm):</label>
+                        <input type="number" id="ethane" name="ethane" step="any" placeholder="e.g., 6" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="acetylene">Acetylene (ppm):</label>
+                        <input type="number" id="acetylene" name="acetylene" step="any" placeholder="e.g., 382" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="carbonMonoxide">Carbon Monoxide (ppm):</label>
+                        <input type="number" id="carbonMonoxide" name="carbonMonoxide" step="any" placeholder="e.g., 0" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="carbonDioxide">Carbon Dioxide (ppm):</label>
+                        <input type="number" id="carbonDioxide" name="carbonDioxide" step="any" placeholder="e.g., 6" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="nitrogen">Nitrogen (ppm):</label>
+                        <input type="number" id="nitrogen" name="nitrogen" step="any" placeholder="e.g., 244" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="oxygen">Oxygen (ppm):</label>
+                        <input type="number" id="oxygen" name="oxygen" step="any" placeholder="e.g., 119707" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="totalCombustibleGas">Total Combustible Gas:</label>
+                        <input type="number" id="totalCombustibleGas" name="totalCombustibleGas" step="any" placeholder="e.g., 550" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="totalDissolvedGas">Total Dissolved Gas:</label>
+                        <input type="number" id="totalDissolvedGas" name="totalDissolvedGas" step="any" placeholder="e.g., 164159" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="rogersRatio">Rogers Ratio:</label>
+                        <input type="number" id="rogersRatio" name="rogersRatio" step="any" placeholder="e.g., 0.5" class="rounded-lg">
+                    </div>
+
+                    <!-- Furan Analysis -->
+                    <div class="md:col-span-2 text-lg font-semibold text-blue-700 mt-6">Furan Analysis</div>
+                    <div class="form-group">
+                        <label for="furansHydroxymethylFurfuraldehyde">5-Hydroxymethyl-2-furfuraldehyde:</label>
+                        <input type="number" id="furansHydroxymethylFurfuraldehyde" name="furansHydroxymethylFurfuraldehyde" step="any" placeholder="e.g., 0.020" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="furansFurfuraldehyde">2-Furfuraldehyde:</label>
+                        <input type="number" id="furansFurfuraldehyde" name="furansFurfuraldehyde" step="any" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="furansFurylMethylKetone">2-Furyl-methyl-ketone:</label>
+                        <input type="number" id="furansFurylMethylKetone" name="furansFurylMethylKetone" step="any" placeholder="e.g., 0.020" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="furansMethylFurfuraldehyde">5-Methyl-2-furfuraldehyde:</label>
+                        <input type="number" id="furansMethylFurfuraldehyde" name="furansMethylFurfuraldehyde" step="any" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="furansFurfurylAlcohol">2-Furfuryl-alcohol:</label>
+                        <input type="number" id="furansFurfurylAlcohol" name="furansFurfurylAlcohol" step="any" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="estimatedDegreeOfPolymerisation">Estimated Degree of Polymerisation:</label>
+                        <input type="number" id="estimatedDegreeOfPolymerisation" name="estimatedDegreeOfPolymerisation" step="any" class="rounded-lg">
+                    </div>
+
+                    <!-- PCB Analysis -->
+                    <div class="md:col-span-2 text-lg font-semibold text-blue-700 mt-6">PCB Analysis</div>
+                    <div class="form-group">
+                        <label for="pcbsResult">Polychlorinated biphenyl (ppm):</label>
+                        <input type="text" id="pcbsResult" name="pcbsResult" placeholder="e.g., PCBs not analysed. or 0.1" class="rounded-lg">
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="md:col-span-2 text-lg font-semibold text-blue-700 mt-6">Recommendations</div>
+                    <div class="form-group md:col-span-2">
+                        <label for="recommendations">Recommendations:</label>
+                        <textarea id="recommendations" name="recommendations" rows="3" placeholder="e.g., Resample to confirm and measure gas progression." class="rounded-lg"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateOfNextSample">Date of Next Sample:</label>
+                        <input type="text" id="dateOfNextSample" name="dateOfNextSample" placeholder="e.g., In 3 months" class="rounded-lg">
+                    </div>
+
+                    <div class="md:col-span-2 flex justify-end gap-4 mt-6">
+                        <button type="submit" id="saveEntryBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                            Save Data
+                        </button>
+                        <button type="button" id="cancelEntryBtn" class="btn-secondary hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- The Modal for New Site Creation -->
+        <div id="siteModal" class="modal">
+            <div class="modal-content max-w-sm text-center p-8">
+                <span class="close-button" id="closeSiteModalBtn">&times;</span>
+                <h2 class="text-2xl mb-4">Create New Site</h2>
+                <form id="newSiteForm">
+                    <div class="form-group mb-6">
+                        <label for="newSiteName" class="block text-gray-700 font-bold mb-2">Site Name:</label>
+                        <input type="text" id="newSiteName" name="newSiteName" placeholder="e.g., London Substation" required class="rounded-lg">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                        Create Site
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- The Modal for New Asset Creation -->
+        <div id="assetModal" class="modal">
+            <div class="modal-content max-w-md p-8">
+                <span class="close-button" id="closeAssetModalBtn">&times;</span>
+                <h2 class="text-2xl mb-4">Create New Asset</h2>
+                <form id="newAssetForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group md:col-span-2">
+                        <label for="newAssetName" class="block text-gray-700 font-bold mb-2">Asset Name:</label>
+                        <input type="text" id="newAssetName" name="newAssetName" placeholder="e.g., Transformer T1" required class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetNumber">Asset Number:</label>
+                        <input type="text" id="newAssetNumber" name="newAssetNumber" placeholder="e.g., 359897" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetSerialNumber">Serial Number:</label>
+                        <input type="text" id="newAssetSerialNumber" name="newAssetSerialNumber" placeholder="e.g., 119,707" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetMake">Make:</label>
+                        <input type="text" id="newAssetMake" name="newAssetMake" placeholder="e.g., Newton" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetType">Type:</label>
+                        <input type="text" id="newAssetType" name="newAssetType" placeholder="e.g., Transformer" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetVolume">Volume (Litres):</label>
+                        <input type="number" id="newAssetVolume" name="newAssetVolume" step="any" placeholder="e.g., 2111" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetTestID">Insulating Medium:</label>
+                        <input type="text" id="newAssetTestID" name="newAssetTestID" placeholder="e.g., MIDEL 7131" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetSamplePoint">Sample Point:</label>
+                        <input type="text" id="newAssetSamplePoint" name="newAssetSamplePoint" placeholder="e.g., Bottom of main tank" class="rounded-lg">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAssetKvaRating">KVA Rating:</label>
+                        <input type="number" id="newAssetKvaRating" name="newAssetKvaRating" placeholder="e.g., 1000" class="rounded-lg">
+                    </div>
+                    <div class="md:col-span-2 flex justify-end gap-4 mt-6">
+                        <button type="submit" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                            Create Asset
+                        </button>
+                        <button type="button" id="cancelNewAssetBtn" class="btn-secondary hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PDF Upload Modal -->
+        <div id="pdfUploadModal" class="modal">
+            <div class="modal-content max-w-md p-8 text-center">
+                <span class="close-button" id="closePdfUploadModalBtn">&times;</span>
+                <h2 class="text-2xl mb-4">Upload & Scan PDF</h2>
+                <p class="text-gray-700 mb-6">Upload a PDF file to automatically extract test data.</p>
+                <input type="file" id="pdfFileInput" accept=".pdf" class="mb-6 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <button id="scanPdfBtn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-md w-full" disabled>
+                    Scan PDF
+                </button>
+                <div id="pdfScanLoading" class="hidden mt-4 text-blue-600 font-semibold">
+                    Scanning PDF... This may take a moment.
+                </div>
+                <div id="pdfScanMessage" class="mt-4 text-gray-700 text-sm"></div>
+            </div>
+        </div>
+
+        <!-- Custom Message Box -->
+        <div id="messageBox" class="message-box"></div>
+
+        <!-- PIN Entry Modal -->
+        <div id="pinEntryModal" class="modal" style="display: flex;">
+            <div class="modal-content max-w-sm text-center p-8">
+                <h2 class="text-2xl mb-4">Enter PIN to Access</h2>
+                <p class="text-gray-700 mb-6">Please enter the 4-digit PIN to access the shared transformer oil test data.</p>
+                <form id="pinForm">
+                    <div class="form-group mb-6">
+                        <label for="pinInput" class="block text-gray-700 font-bold mb-2">PIN:</label>
+                        <input type="password" id="pinInput" name="pinInput" maxlength="4" pattern="\d{4}" placeholder="****" required class="rounded-lg text-center text-xl tracking-widest">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">
+                        Submit PIN
+                    </button>
+                    <p id="pinError" class="text-red-500 mt-3 hidden">Incorrect PIN. Please try again.</p>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, doc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+
+        // Global Firebase variables
+        let app;
+        let db;
+        let auth;
+        let analytics;
+        let userId = 'anonymous'; // Default to anonymous
+        let currentSiteId = null; // Stores the ID of the currently selected site
+        let currentSiteName = 'None Selected'; // Stores the name of the currently selected site
+        let currentAssetId = null; // Stores the ID of the currently selected asset
+        let currentAssetName = 'None Selected'; // Stores the name of the currently selected asset
+        let currentAssetDetails = {}; // Stores all details of the currently selected asset
+
+        // UI Elements
+        const newEntryBtn = document.getElementById('newEntryBtn');
+        const viewDataBtn = document.getElementById('viewDataBtn');
+        const dataEntryModal = document.getElementById('dataEntryModal');
+        const closeButton = dataEntryModal.querySelector('.close-button');
+        const cancelEntryBtn = document.getElementById('cancelEntryBtn');
+        const oilTestForm = document.getElementById('oilTestForm');
+        const dataList = document.getElementById('dataList');
+        const noDataMessage = document.getElementById('noDataMessage');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const messageBox = document.getElementById('messageBox');
+        const graphParamSelect = document.getElementById('graphParamSelect');
+        const oilTrendChartCanvas = document.getElementById('oilTrendChart');
+        const ctx = oilTrendChartCanvas.getContext('2d');
+        const downloadGraphBtn = document.getElementById('downloadGraphBtn');
+        const downloadAllGraphsBtn = document.getElementById('downloadAllGraphsBtn');
+        const searchDataInput = document.getElementById('searchDataInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const dataEntryModalTitle = document.getElementById('dataEntryModalTitle');
+        const saveEntryBtn = document.getElementById('saveEntryBtn');
+
+        // Site & Asset Management UI Elements
+        const siteSelect = document.getElementById('siteSelect');
+        const createSiteBtn = document.getElementById('createSiteBtn');
+        const siteModal = document.getElementById('siteModal');
+        const closeSiteModalBtn = document.getElementById('closeSiteModalBtn');
+        const newSiteForm = document.getElementById('newSiteForm');
+        const newSiteNameInput = document.getElementById('newSiteName');
+
+        const assetSelect = document.getElementById('assetSelect');
+        const createAssetBtn = document.getElementById('createAssetBtn');
+        const deleteAssetBtn = document.getElementById('deleteAssetBtn');
+        const assetModal = document.getElementById('assetModal');
+        const closeAssetModalBtn = document.getElementById('closeAssetModalBtn');
+        const newAssetForm = document.getElementById('newAssetForm');
+        const newAssetNameInput = document.getElementById('newAssetName');
+        const cancelNewAssetBtn = document.getElementById('cancelNewAssetBtn');
+
+        const currentSiteNameDisplay = document.getElementById('currentSiteNameDisplay');
+        const currentAssetNameDisplay = document.getElementById('currentAssetNameDisplay');
+        const currentAssetDetailsDisplay = document.getElementById('currentAssetDetailsDisplay');
+
+        // PIN related UI elements
+        const pinEntryModal = document.getElementById('pinEntryModal');
+        const pinForm = document.getElementById('pinForm');
+        const pinInput = document.getElementById('pinInput');
+        const pinError = document.getElementById('pinError');
+
+        // PDF Upload UI Elements
+        const uploadPdfBtn = document.getElementById('uploadPdfBtn');
+        const pdfUploadModal = document.getElementById('pdfUploadModal');
+        const closePdfUploadModalBtn = document.getElementById('closePdfUploadModalBtn');
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        const scanPdfBtn = document.getElementById('scanPdfBtn');
+        const pdfScanLoading = document.getElementById('pdfScanLoading');
+        const pdfScanMessage = document.getElementById('pdfScanMessage');
+
+        // Define valid PINs and their corresponding data IDs
+        const VALID_PINS = {
+            "1234": "pin_1234_data",
+            "1133": "pin_1133_data"
+        };
+        let CURRENT_DATA_ID = null; // This will be set after successful PIN entry
+
+        let allTestData = []; // To store all fetched data for graphing
+
+        // --- Firebase Initialization and Authentication ---
+        // Your web app's Firebase configuration - PROVIDED BY USER
+        const firebaseConfig = {
+            apiKey: "AIzaSyCM_uA1J892sYrC0vVGmSaU2gn_8VNeciI",
+            authDomain: "oil-sample-tracker.firebaseapp.com",
+            projectId: "oil-sample-tracker",
+            storageBucket: "oil-sample-tracker.firebasestorage.app",
+            messagingSenderId: "271202062311",
+            appId: "1:271202062311:web:da9e75f80892d747e5b742",
+            measurementId: "G-96X1R1G85W"
+        };
+
+        /**
+         * IMPORTANT FIREBASE SECURITY RULES FOR THIS APP:
+         *
+         * To enable shared access for anyone with the PIN, you MUST update your Firebase Firestore security rules.
+         * These rules will allow any authenticated user (including anonymous users, which this app uses)
+         * to read and write to the specific public data path.
+         *
+         * Please follow these steps EXACTLY:
+         *
+         * 1.  Go to your Firebase project console: https://console.firebase.google.com/
+         * 2.  Make sure you are logged in with the Google account that owns the "oil-sample-tracker" project.
+         * 3.  In the left-hand navigation menu, under the "Build" section, click on **Authentication**.
+         * a. Go to the "Sign-in method" tab.
+         * b. Find "Anonymous" in the list of providers.
+         * c. **Ensure its status is "Enabled"**. If it's disabled, click on it, toggle the switch to "Enabled", and then click "Save".
+         *
+         * 4.  In the left-hand navigation menu, still under "Build", click on **Firestore Database**.
+         * a. Once in the Firestore Database section, click on the **Rules** tab.
+         * b. You will see a text editor with your current security rules.
+         * c. **Copy and paste the ENTIRE code block below** into the rules editor:
+         *
+         * ```firestore
+         * rules_version = '2';
+         * service cloud.firestore {
+         * match /databases/{database}/documents {
+         * // Publicly shared data accessible after client-side PIN entry
+         * // WARNING: This makes data accessible to anyone who bypasses the client-side PIN check.
+         * // Data is now segmented by a 'dataId' derived from the PIN.
+         * match /artifacts/{projectId}/public/data/shared_data/{dataId} {
+         * allow read, write: if request.auth != null;
+         *
+         * match /sites/{siteId} {
+         * allow read, write: if request.auth != null;
+         *
+         * match /shared_assets/{assetId} {
+         * allow read, write: if request.auth != null;
+         *
+         * match /shared_transformer_oil_tests/{document=**} {
+         * allow read, write: if request.auth != null;
+         * }
+         * }
+         * }
+         * }
+         * }
+         * }
+         * ```
+         * e. **Double-check every character** for typos, extra spaces, or missing brackets.
+         * f. **CRITICAL: Click the "Publish" button.** This applies the rules live. If you skip this, the changes won't take effect.
+         *
+         * After completing these steps, perform a hard refresh (Ctrl+F5 or Cmd+Shift+R) on your GitHub Pages site.
+         */
+
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         * @param {boolean} isError - True if it's an error message, false for success.
+         */
+        function showMessageBox(message, isError = false) {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box'; // Reset classes
+            if (isError) {
+                messageBox.classList.add('error');
+            }
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+
+        /**
+         * Initializes Firebase app and authentication.
+         */
+        async function initializeFirebase() {
+            try {
+                // Initialize Firebase
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                analytics = getAnalytics(app); // Initialize analytics
+
+                // Authenticate user
+                if (typeof __initial_auth_token !== 'undefined') {
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                        console.log("Signed in with custom token.");
+                    } catch (customTokenError) {
+                        console.warn("Custom token sign-in failed:", customTokenError.message, "Attempting anonymous sign-in as fallback.");
+                        // Fallback to anonymous sign-in if custom token fails
+                        await signInAnonymously(auth);
+                        console.log("Signed in anonymously after custom token fallback.");
+                    }
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Signed in anonymously.");
+                }
+
+                // Listen for auth state changes and set userId
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Auth state changed. User ID:", userId);
+                        loadSites(); // Load sites once authenticated
+                    } else {
+                        // Fallback for truly unauthenticated state (e.g., if anonymous token expires or is invalid)
+                        userId = crypto.randomUUID();
+                        console.log("User is signed out or anonymous. Using random ID:", userId);
+                        loadSites(); // Still try to load sites, but data will be under anonymous ID
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessageBox(`Failed to initialize Firebase: ${error.message}`, true);
+            }
+        }
+
+        // --- Site Management Operations ---
+
+        /**
+         * Gets the base path for shared sites, now including the CURRENT_DATA_ID.
+         * @returns {string} The Firestore path for shared sites.
+         */
+        function getSharedSitesPath() {
+            if (!CURRENT_DATA_ID) {
+                console.error("CURRENT_DATA_ID is not set. Cannot form Firestore path.");
+                return null;
+            }
+            return `artifacts/${firebaseConfig.projectId}/public/data/shared_data/${CURRENT_DATA_ID}/sites`;
+        }
+
+        /**
+         * Gets the path for assets under a specific shared site, now including the CURRENT_DATA_ID.
+         * @param {string} siteId - The ID of the site.
+         * @returns {string} The Firestore path for shared assets.
+         */
+        function getSharedAssetsPath(siteId) {
+            if (!CURRENT_DATA_ID) {
+                console.error("CURRENT_DATA_ID is not set. Cannot form Firestore path.");
+                return null;
+            }
+            return `artifacts/${firebaseConfig.projectId}/public/data/shared_data/${CURRENT_DATA_ID}/sites/${siteId}/shared_assets`;
+        }
+
+        /**
+         * Gets the path for transformer oil tests under a specific shared asset, now including the CURRENT_DATA_ID.
+         * @param {string} siteId - The ID of the site.
+         * @param {string} assetId - The ID of the asset.
+         * @returns {string} The Firestore path for shared transformer oil tests.
+         */
+        function getSharedTestsPath(siteId, assetId) {
+            if (!CURRENT_DATA_ID) {
+                console.error("CURRENT_DATA_ID is not set. Cannot form Firestore path.");
+                return null;
+            }
+            return `artifacts/${firebaseConfig.projectId}/public/data/shared_data/${CURRENT_DATA_ID}/sites/${siteId}/shared_assets/${assetId}/shared_transformer_oil_tests`;
+        }
+
+        /**
+         * Loads all sites for the current user and populates the dropdown.
+         */
+        async function loadSites() {
+            if (!db || !CURRENT_DATA_ID) {
+                console.warn("Firestore or CURRENT_DATA_ID not ready for site loading.");
+                return;
+            }
+            loadingIndicator.classList.remove('hidden');
+            siteSelect.innerHTML = '<option value="">Loading Sites...</option>'; // Clear and show loading
+            assetSelect.innerHTML = '<option value="">Select Site First</option>'; // Clear asset dropdown
+            deleteAssetBtn.disabled = true; // Disable delete asset button
+            currentAssetDetailsDisplay.innerHTML = ''; // Clear asset details display
+
+            try {
+                const sitesPath = getSharedSitesPath();
+                if (!sitesPath) return; // Exit if path is null
+                const sitesColRef = collection(db, sitesPath);
+                const q = query(sitesColRef);
+                const querySnapshot = await getDocs(q);
+
+                const sites = [];
+                querySnapshot.forEach((doc) => {
+                    sites.push({ id: doc.id, ...doc.data() });
+                });
+
+                siteSelect.innerHTML = ''; // Clear options
+                if (sites.length > 0) {
+                    sites.sort((a, b) => a.siteName.localeCompare(b.siteName)); // Sort alphabetically
+                    sites.forEach(site => {
+                        const option = document.createElement('option');
+                        option.value = site.id;
+                        option.textContent = site.siteName;
+                        siteSelect.appendChild(option);
+                    });
+                    // Select the first site by default if no site is currently selected
+                    if (!currentSiteId || !sites.some(site => site.id === currentSiteId)) {
+                        selectSite(sites[0].id, sites[0].siteName);
+                    } else {
+                        // Re-select the previously active site if it still exists
+                        siteSelect.value = currentSiteId;
+                        currentSiteNameDisplay.textContent = currentSiteName;
+                        loadAssets(); // Load assets for the re-selected site
+                    }
+                } else {
+                    siteSelect.innerHTML = '<option value="">No Sites Available</option>';
+                    currentSiteId = null;
+                    currentSiteName = 'None Selected';
+                    currentSiteNameDisplay.textContent = currentSiteName;
+                    currentAssetId = null;
+                    currentAssetName = 'None Selected';
+                    currentAssetNameDisplay.textContent = currentAssetName;
+                    currentAssetDetailsDisplay.innerHTML = ''; // Clear asset details display
+                    showMessageBox("No sites found. Please create your first site!", false);
+                    siteModal.style.display = 'flex'; // Automatically open site creation modal
+                }
+            } catch (e) {
+                console.error("Error loading sites:", e);
+                showMessageBox(`Error loading sites: ${e.message}`, true);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Sets the currently active site and triggers asset loading.
+         * @param {string} siteId - The ID of the site to select.
+         * @param {string} siteName - The name of the site to select.
+         */
+        function selectSite(siteId, siteName) {
+            currentSiteId = siteId;
+            currentSiteName = siteName;
+            currentSiteNameDisplay.textContent = currentSiteName;
+            siteSelect.value = siteId; // Ensure dropdown reflects selection
+            currentAssetId = null; // Reset asset selection when site changes
+            currentAssetName = 'None Selected';
+            currentAssetNameDisplay.textContent = currentAssetName;
+            currentAssetDetails = {}; // Clear asset details
+            currentAssetDetailsDisplay.innerHTML = ''; // Clear asset details display
+            loadAssets(); // Load assets for the newly selected site
+            showMessageBox(`Site "${siteName}" selected.`);
+        }
+
+        /**
+         * Creates a new site in Firestore.
+         * @param {string} siteName - The name of the new site.
+         */
+        async function createNewSite(siteName) {
+            if (!db || !CURRENT_DATA_ID) {
+                showMessageBox("Database not ready or PIN not entered. Please wait for initialization.", true);
+                return;
+            }
+            loadingIndicator.classList.remove('hidden');
+            try {
+                const sitesPath = getSharedSitesPath();
+                if (!sitesPath) return; // Exit if path is null
+                console.log("Attempting to create site at path:", sitesPath);
+                const docRef = await addDoc(collection(db, sitesPath), {
+                    siteName: siteName,
+                    createdAt: new Date().toISOString()
+                });
+                console.log("New site created with ID: ", docRef.id);
+                showMessageBox(`Site "${siteName}" created successfully!`);
+                siteModal.style.display = 'none';
+                newSiteForm.reset();
+                await loadSites();
+                selectSite(docRef.id, siteName);
+            }  catch (e) {
+                console.error("Error creating site: ", e);
+                showMessageBox(`Error creating site: ${e.message}`, true);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        // --- Asset Management Operations ---
+
+        /**
+         * Loads all assets for the current site and populates the dropdown.
+         */
+        async function loadAssets() {
+            if (!db || !currentSiteId || !CURRENT_DATA_ID) {
+                console.warn("Firestore, Site ID, or CURRENT_DATA_ID not ready for asset loading.");
+                assetSelect.innerHTML = '<option value="">Select Site First</option>';
+                allTestData = [];
+                filterAndDisplayData();
+                drawChart(allTestData, graphParamSelect.value);
+                deleteAssetBtn.disabled = true;
+                currentAssetDetailsDisplay.innerHTML = '';
+                return;
+            }
+            loadingIndicator.classList.remove('hidden');
+            assetSelect.innerHTML = '<option value="">Loading Assets...</option>';
+            deleteAssetBtn.disabled = true;
+            currentAssetDetailsDisplay.innerHTML = '';
+
+            try {
+                const assetsPath = getSharedAssetsPath(currentSiteId);
+                if (!assetsPath) return;
+                console.log("Attempting to load assets from path:", assetsPath);
+                const assetsColRef = collection(db, assetsPath);
+                const q = query(assetsColRef);
+                const querySnapshot = await getDocs(q);
+
+                const assets = [];
+                querySnapshot.forEach((doc) => {
+                    assets.push({ id: doc.id, ...doc.data() });
+                });
+
+                window.allAssetsData = assets;
+
+                assetSelect.innerHTML = '';
+                if (assets.length > 0) {
+                    assets.sort((a, b) => a.assetName.localeCompare(b.assetName));
+                    assets.forEach(asset => {
+                        const option = document.createElement('option');
+                        option.value = asset.id;
+                        option.textContent = asset.assetName;
+                        assetSelect.appendChild(option);
+                    });
+                    if (!currentAssetId || !assets.some(asset => asset.id === currentAssetId)) {
+                        selectAsset(assets[0].id, assets[0].assetName, assets[0]);
+                    } else {
+                        const reSelectedAsset = assets.find(asset => asset.id === currentAssetId);
+                        if (reSelectedAsset) {
+                            selectAsset(reSelectedAsset.id, reSelectedAsset.assetName, reSelectedAsset);
+                        } else {
+                            selectAsset(assets[0].id, assets[0].assetName, assets[0]);
+                        }
+                    }
+                    deleteAssetBtn.disabled = false;
+                } else {
+                    assetSelect.innerHTML = '<option value="">No Assets Available</option>';
+                    currentAssetId = null;
+                    currentAssetName = 'None Selected';
+                    currentAssetNameDisplay.textContent = currentAssetName;
+                    currentAssetDetails = {};
+                    currentAssetDetailsDisplay.innerHTML = '';
+                    showMessageBox(`No assets found for site "${currentSiteName}". Please create your first asset!`, false);
+                    assetModal.style.display = 'flex';
+                    deleteAssetBtn.disabled = true;
+                }
+            } catch (e) {
+                console.error("Error loading assets:", e);
+                showMessageBox(`Error loading assets: ${e.message}`, true);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Sets the currently active asset and triggers data loading.
+         * @param {string} assetId - The ID of the asset to select.
+         * @param {string} assetName - The name of the asset to select.
+         * @param {Object} assetDetails - The full asset object containing all its details.
+         */
+        function selectAsset(assetId, assetName, assetDetails) {
+            currentAssetId = assetId;
+            currentAssetName = assetName;
+            currentAssetDetails = assetDetails;
+            currentAssetNameDisplay.textContent = currentAssetName;
+            assetSelect.value = assetId;
+
+            // Display asset details
+            currentAssetDetailsDisplay.innerHTML = `
+                <p><strong>Asset No:</strong> ${currentAssetDetails.assetNumber || 'N/A'}</p>
+                <p><strong>Serial No:</strong> ${currentAssetDetails.assetSerialNumber || 'N/A'}</p>
+                <p><strong>Make:</strong> ${currentAssetDetails.assetMake || 'N/A'}</p>
+                <p><strong>Type:</strong> ${currentAssetDetails.assetType || 'N/A'}</p>
+                <p><strong>Volume:</strong> ${currentAssetDetails.assetVolume !== undefined && currentAssetDetails.assetVolume !== null ? currentAssetDetails.assetVolume : 'N/A'} Litres</p>
+                <p><strong>Insulating Medium:</strong> ${currentAssetDetails.assetTestID || 'N/A'}</p>
+                <p><strong>Sample Point:</strong> ${currentAssetDetails.assetSamplePoint || 'N/A'}</p>
+                <p><strong>KVA Rating:</strong> ${currentAssetDetails.assetKvaRating !== undefined && currentAssetDetails.assetKvaRating !== null ? currentAssetDetails.assetKvaRating : 'N/A'}</p>
+            `;
+
+            setupFirestoreListener();
+            showMessageBox(`Asset "${assetName}" selected.`);
+            deleteAssetBtn.disabled = false;
+        }
+
+        /**
+         * Creates a new asset in Firestore under the current site.
+         * @param {string} assetName - The name of the new asset.
+         */
+        async function createNewAsset(assetName) {
+            if (!db || !currentSiteId || !CURRENT_DATA_ID) {
+                showMessageBox("Database not ready, no site selected, or PIN not entered. Please wait for initialization and select a site.", true);
+                return;
+            }
+            loadingIndicator.classList.remove('hidden');
+            try {
+                const assetsPath = getSharedAssetsPath(currentSiteId);
+                if (!assetsPath) return;
+                console.log("Attempting to create asset at path:", assetsPath);
+
+                const assetData = {
+                    assetName: assetName,
+                    createdAt: new Date().toISOString(),
+                    assetNumber: document.getElementById('newAssetNumber').value.trim(),
+                    assetSerialNumber: document.getElementById('newAssetSerialNumber').value.trim(),
+                    assetMake: document.getElementById('newAssetMake').value.trim(),
+                    assetType: document.getElementById('newAssetType').value.trim(),
+                    assetVolume: parseFloat(document.getElementById('newAssetVolume').value) || null,
+                    assetTestID: document.getElementById('newAssetTestID').value.trim(),
+                    assetSamplePoint: document.getElementById('newAssetSamplePoint').value.trim(),
+                    assetKvaRating: parseFloat(document.getElementById('newAssetKvaRating').value) || null,
+                };
+
+                const docRef = await addDoc(collection(db, assetsPath), assetData);
+                console.log("New asset created with ID: ", docRef.id);
+                showMessageBox(`Asset "${assetName}" created successfully!`);
+                assetModal.style.display = 'none';
+                newAssetForm.reset();
+                await loadAssets();
+            } catch (e) {
+                console.error("Error creating asset: ", e);
+                showMessageBox(`Error creating asset: ${e.message}`, true);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Deletes the currently selected asset and all its associated test data.
+         */
+        async function deleteSelectedAsset() {
+            if (!currentSiteId || !currentAssetId || !CURRENT_DATA_ID) {
+                showMessageBox("No asset selected to delete or PIN not entered.", true);
+                return;
+            }
+
+            showConfirmationModal(`Are you sure you want to delete asset "${currentAssetName}" and ALL its test data? This action cannot be undone.`, async () => {
+                loadingIndicator.classList.remove('hidden');
+                try {
+                    const testsPath = getSharedTestsPath(currentSiteId, currentAssetId);
+                    if (!testsPath) return;
+                    const testsColRef = collection(db, testsPath);
+                    const testsSnapshot = await getDocs(testsColRef);
+
+                    const deletePromises = [];
+                    testsSnapshot.forEach((testDoc) => {
+                        deletePromises.push(deleteDoc(doc(db, testsPath, testDoc.id)));
+                    });
+                    await Promise.all(deletePromises);
+                    console.log(`All test entries for asset ${currentAssetName} deleted.`);
+
+                    const assetPath = getSharedAssetsPath(currentSiteId);
+                    if (!assetPath) return;
+                    const assetDocRef = doc(db, assetPath, currentAssetId);
+                    await deleteDoc(assetDocRef);
+                    console.log(`Asset ${currentAssetName} successfully deleted!`);
+
+                    showMessageBox(`Asset "${currentAssetName}" and its data deleted successfully!`);
+
+                    currentAssetId = null;
+                    currentAssetName = 'None Selected';
+                    currentAssetNameDisplay.textContent = currentAssetName;
+                    currentAssetDetails = {};
+                    currentAssetDetailsDisplay.innerHTML = '';
+                    await loadAssets();
+                    setupFirestoreListener();
+                } catch (e) {
+                    console.error("Error deleting asset:", e);
+                    showMessageBox(`Error deleting asset: ${e.message}`, true);
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                }
+            });
+        }
+
+        // --- Firestore Data Operations (now site and asset-specific) ---
+
+        /**
+         * Sets up a real-time listener for transformer oil test data for the current asset.
+         */
+        function setupFirestoreListener() {
+            if (!db || !currentSiteId || !currentAssetId || !CURRENT_DATA_ID) {
+                console.warn("Firestore, Site ID, Asset ID, or CURRENT_DATA_ID not ready for listener setup. Skipping data load.");
+                allTestData = [];
+                filterAndDisplayData();
+                loadingIndicator.classList.add('hidden');
+                return;
+            }
+
+            loadingIndicator.classList.remove('hidden');
+            const testsPath = getSharedTestsPath(currentSiteId, currentAssetId);
+            if (!testsPath) return;
+            console.log("Attempting to load tests from path:", testsPath);
+            const colRef = collection(db, testsPath);
+            const q = query(colRef);
+
+            if (window.currentSnapshotUnsubscribe) {
+                window.currentSnapshotUnsubscribe();
+            }
+
+            window.currentSnapshotUnsubscribe = onSnapshot(q, (snapshot) => {
+                allTestData = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.dateOfSample) {
+                        allTestData.push({ id: doc.id, ...data });
+                    } else {
+                        console.warn("Document missing dateOfSample, skipping:", doc.id);
+                    }
+                });
+
+                allTestData.sort((a, b) => {
+                    const dateA = new Date(a.dateOfSample);
+                    const dateB = new Date(b.dateOfSample);
+                    return dateA - dateB;
+                });
+
+                filterAndDisplayData();
+                drawChart(allTestData, graphParamSelect.value);
+                loadingIndicator.classList.add('hidden');
+            }, (error) => {
+                console.error("Error fetching data from Firestore for current asset:", error);
+                showMessageBox(`Error loading data for asset: ${error.message}`, true);
+                loadingIndicator.classList.add('hidden');
+            });
+        }
+
+        /**
+         * Adds a new test entry to Firestore for the current asset.
+         * @param {Object} data - The test data to add.
+         */
+        async function addTestEntry(data) {
+            if (!db || !currentSiteId || !currentAssetId || !CURRENT_DATA_ID) {
+                showMessageBox("Please select a site and an asset first, and ensure PIN is entered.", true);
+                return;
+            }
+            loadingIndicator.classList.remove('hidden');
+            try {
+                const testsPath = getSharedTestsPath(currentSiteId, currentAssetId);
+                if (!testsPath) return;
+                console.log("Attempting to add test entry at path:", testsPath);
+                const colRef = collection(db, testsPath);
+                const docRef = await addDoc(colRef, data);
+                console.log("Document written with ID: ", docRef.id);
+                showMessageBox("Test entry saved successfully!");
+                oilTestForm.reset();
+                dataEntryModal.style.display = 'none';
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showMessageBox(`Error saving data: ${e.message}`, true);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Deletes a test entry from Firestore for the current asset.
+         * @param {string} docId - The ID of the document to delete.
+         */
+        async function deleteTestEntry(docId) {
+            if (!db || !currentSiteId || !currentAssetId || !CURRENT_DATA_ID) {
+                showMessageBox("No site or asset selected, or PIN not entered. Cannot delete entry.", true);
+                return;
+            }
+            loadingIndicator.classList.remove('hidden');
+            try {
+                const testsPath = getSharedTestsPath(currentSiteId, currentAssetId);
+                if (!testsPath) return;
+                console.log("Attempting to delete test entry from path:", testsPath, "Document ID:", docId);
+                const docRef = doc(db, testsPath, docId);
+                await deleteDoc(docRef);
+                console.log("Document successfully deleted!");
+                showMessageBox("Entry deleted successfully!");
+            } catch (e) {
+                console.error("Error removing document: ", e);
+                showMessageBox(`Error deleting data: ${e.message}`, true);
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        // --- UI Event Handlers ---
+
+        newEntryBtn.addEventListener('click', () => {
+            if (!currentSiteId || !currentAssetId) {
+                showMessageBox("Please select a site and an asset before adding a test entry.", true);
+                return;
+            }
+            oilTestForm.reset();
+
+            Array.from(oilTestForm.elements).forEach(element => {
+                if (element.tagName !== 'BUTTON') {
+                    element.readOnly = false;
+                    element.disabled = false;
+                }
+            });
+            saveEntryBtn.style.display = 'inline-block';
+            cancelEntryBtn.textContent = 'Cancel';
+            dataEntryModalTitle.textContent = 'New Test Entry';
+
+            document.getElementById('assetNo').value = currentAssetDetails.assetNumber || '';
+            document.getElementById('serialNo').value = currentAssetDetails.assetSerialNumber || '';
+            document.getElementById('make').value = currentAssetDetails.assetMake || '';
+            document.getElementById('type').value = currentAssetDetails.assetType || '';
+            document.getElementById('volume').value = currentAssetDetails.assetVolume !== undefined && currentAssetDetails.assetVolume !== null ? currentAssetDetails.assetVolume : '';
+            document.getElementById('testID').value = currentAssetDetails.assetTestID || '';
+            document.getElementById('samplePoint').value = currentAssetDetails.assetSamplePoint || '';
+            document.getElementById('kVADating').value = currentAssetDetails.assetKvaRating !== undefined && currentAssetDetails.assetKvaRating !== null ? currentAssetDetails.assetKvaRating : '';
+
+
+            dataEntryModal.style.display = 'flex';
+        });
+
+        viewDataBtn.addEventListener('click', () => {
+            if (!currentSiteId || !currentAssetId) {
+                showMessageBox("Please select a site and an asset to view data.", true);
+                return;
+            }
+            filterAndDisplayData();
+        });
+
+        closeButton.addEventListener('click', () => {
+            dataEntryModal.style.display = 'none';
+        });
+
+        cancelEntryBtn.addEventListener('click', () => {
+            dataEntryModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target == dataEntryModal) {
+                dataEntryModal.style.display = 'none';
+            }
+            if (event.target == siteModal) {
+                siteModal.style.display = 'none';
+            }
+            if (event.target == assetModal) {
+                assetModal.style.display = 'none';
+            }
+            if (event.target == pdfUploadModal) {
+                pdfUploadModal.style.display = 'none';
+                pdfFileInput.value = '';
+                scanPdfBtn.disabled = true;
+                pdfScanLoading.classList.add('hidden');
+                pdfScanMessage.textContent = '';
+            }
+        });
+
+        oilTestForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(oilTestForm);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                const numberFields = [
+                    'acidity', 'dielectricStrength', 'waterContent', 'hydrogen', 'methane', 'ethylene', 'ethane',
+                    'acetylene', 'carbonMonoxide', 'carbonDioxide', 'nitrogen', 'oxygen', 'totalCombustibleGas',
+                    'totalDissolvedGas', 'rogersRatio', 'furansHydroxymethylFurfuraldehyde', 'furansFurfuraldehyde',
+                    'furansFurylMethylKetone', 'furansMethylFurfuraldehyde',
+                    'furansFurfurylAlcohol',
+                    'estimatedDegreeOfPolymerisation',
+                    'volume', 'kVADating'
+                ];
+
+                if (numberFields.includes(key)) {
+                    const parsedValue = parseFloat(value);
+                    data[key] = isNaN(parsedValue) ? null : parsedValue;
+                } else {
+                    data[key] = value;
+                }
+            }
+            addTestEntry(data);
+        });
+
+        graphParamSelect.addEventListener('change', (event) => {
+            drawChart(allTestData, event.target.value);
+        });
+
+        downloadGraphBtn.addEventListener('click', () => {
+            const dataURL = oilTrendChartCanvas.toDataURL('image/jpeg', 0.9);
+            const a = document.createElement('a');
+            a.href = dataURL;
+            const selectedOptionText = graphParamSelect.options[graphParamSelect.selectedIndex].textContent.replace(/[\$\(\)]/g, '');
+            a.download = `${currentAssetName.replace(/[^a-zA-Z0-9]/g, '_')}_${selectedOptionText.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0,10)}.jpeg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showMessageBox("Graph downloaded successfully!");
+        });
+
+        downloadAllGraphsBtn.addEventListener('click', async () => {
+            if (!currentSiteId || !currentAssetId || allTestData.length === 0) {
+                showMessageBox("Please select an asset with data to download graphs.", true);
+                return;
+            }
+
+            loadingIndicator.classList.remove('hidden');
+            showMessageBox("Generating all graphs for download...", false);
+
+            const originalGraphParam = graphParamSelect.value;
+
+            const originalCanvasWidth = oilTrendChartCanvas.width;
+            const originalCanvasHeight = oilTrendChartCanvas.height;
+            oilTrendChartCanvas.width = 800;
+            oilTrendChartCanvas.height = 400;
+
+
+            for (const option of graphParamSelect.options) {
+                const paramValue = option.value;
+                const paramText = option.textContent;
+
+                const chartableData = allTestData.filter(entry => typeof entry[paramValue] === 'number' && !isNaN(entry[paramValue]));
+
+                if (chartableData.length < 2) {
+                    console.warn(`Skipping graph for "${paramText}" as there are fewer than 2 numeric data points.`);
+                    continue;
+                }
+
+                graphParamSelect.value = paramValue;
+                drawChart(allTestData, paramValue);
+
+                const imageData = oilTrendChartCanvas.toDataURL('image/jpeg', 0.9);
+
+                if (imageData.length < 100) {
+                    console.warn(`Generated image data for "${paramText}" is very small, might be blank.`);
+                } else {
+                    console.log(`Generated image data for "${paramText}" successfully.`);
+                }
+
+                const a = document.createElement('a');
+                a.href = imageData;
+                const cleanParamText = paramText.replace(/[\$\(\)]/g, '').replace(/\s+/g, '_');
+                a.download = `${currentAssetName.replace(/[^a-zA-Z0-9]/g, '_')}_${cleanParamText}_${new Date().toISOString().slice(0,10)}.jpeg`;
+
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            graphParamSelect.value = originalGraphParam;
+            drawChart(allTestData, originalGraphParam);
+            oilTrendChartCanvas.width = originalCanvasWidth;
+            oilTrendChartCanvas.height = originalCanvasHeight;
+
+
+            showMessageBox("All graphs downloaded as JPEGs!");
+            loadingIndicator.classList.add('hidden');
+        });
+
+
+        searchDataInput.addEventListener('input', filterAndDisplayData);
+        clearSearchBtn.addEventListener('click', () => {
+            searchDataInput.value = '';
+            filterAndDisplayData();
+        });
+
+        /**
+         * Filters the test data based on search input and displays it.
+         */
+        function filterAndDisplayData() {
+            const searchTerm = searchDataInput.value.toLowerCase().trim();
+            let filteredData = allTestData;
+
+            if (searchTerm) {
+                filteredData = allTestData.filter(entry => {
+                    return (entry.assetNo && String(entry.assetNo).toLowerCase().includes(searchTerm)) ||
+                           (entry.serialNo && String(entry.serialNo).toLowerCase().includes(searchTerm)) ||
+                           (entry.make && String(entry.make).toLowerCase().includes(searchTerm)) ||
+                           (entry.type && String(entry.type).toLowerCase().includes(searchTerm)) ||
+                           (entry.testID && String(entry.testID).toLowerCase().includes(searchTerm)) ||
+                           (entry.samplePoint && String(entry.samplePoint).toLowerCase().includes(searchTerm)) ||
+                           (entry.dateOfSample && String(entry.dateOfSample).toLowerCase().includes(searchTerm));
+                });
+            }
+            displayTestData(filteredData);
+        }
+
+        /**
+         * Displays the fetched test data in the list.
+         * @param {Array<Object>} dataArray - Array of test data objects to display (can be filtered).
+         */
+        function displayTestData(dataArray) {
+            dataList.innerHTML = '';
+            if (dataArray.length === 0) {
+                noDataMessage.classList.remove('hidden');
+            } else {
+                noDataMessage.classList.add('hidden');
+                dataArray.forEach(entry => {
+                    const div = document.createElement('div');
+                    div.className = 'data-list-item';
+                    div.innerHTML = `
+                        <div class="flex-grow view-details-btn" data-id="${entry.id}">
+                            <span class="date">Date of Sample: ${entry.dateOfSample || 'N/A'}</span>
+                            <span>Asset No: ${entry.assetNo || 'N/A'}</span>
+                            <span>Serial No: ${entry.serialNo || 'N/A'}</span>
+                            <span>Type: ${entry.type || 'N/A'}</span>
+                        </div>
+                        <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg shadow-md delete-btn" data-id="${entry.id}">Delete</button>
+                    `;
+                    dataList.appendChild(div);
+                });
+
+                dataList.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const docId = event.target.dataset.id;
+                        showConfirmationModal('Are you sure you want to delete this entry?', () => {
+                            deleteTestEntry(docId);
+                        });
+                        event.stopPropagation();
+                    });
+                });
+
+                dataList.querySelectorAll('.view-details-btn').forEach(element => {
+                    element.addEventListener('click', (event) => {
+                        const docId = event.target.closest('.view-details-btn').dataset.id;
+                        showTestEntryDetails(docId);
+                    });
+                });
+            }
+        }
+
+        /**
+         * Shows the detailed view of a specific test entry in the data entry modal.
+         * @param {string} entryId - The ID of the test entry to display.
+         */
+        function showTestEntryDetails(entryId) {
+            const entry = allTestData.find(e => e.id === entryId);
+            if (!entry) {
+                showMessageBox("Test entry not found.", true);
+                return;
+            }
+
+            dataEntryModalTitle.textContent = 'Test Entry Details';
+
+            for (const key in entry) {
+                const inputElement = document.getElementById(key);
+                if (inputElement) {
+                    inputElement.readOnly = false;
+                    inputElement.disabled = false;
+
+                    if (inputElement.tagName === 'SELECT') {
+                        const optionExists = Array.from(inputElement.options).some(opt => opt.value === entry[key]);
+                        inputElement.value = optionExists ? entry[key] : '';
+                    } else {
+                        inputElement.value = entry[key] !== null ? entry[key] : '';
+                    }
+                }
+            }
+
+            saveEntryBtn.style.display = 'none';
+            cancelEntryBtn.textContent = 'Close';
+            dataEntryModal.style.display = 'flex';
+        }
+
+
+        function showConfirmationModal(message, onConfirm) {
+            const modalHtml = `
+                <div id="confirmationModal" class="modal" style="display: flex;">
+                    <div class="modal-content max-w-sm text-center p-8">
+                        <p class="text-xl mb-6">${message}</p>
+                        <div class="flex justify-center gap-4">
+                            <button id="confirmYes" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">Yes</button>
+                            <button id="confirmNo" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg shadow-md">No</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            const confirmationModal = document.getElementById('confirmationModal');
+            document.getElementById('confirmYes').onclick = () => {
+                onConfirm();
+                confirmationModal.remove();
+            };
+            document.getElementById('confirmNo').onclick = () => {
+                confirmationModal.remove();
+            };
+            confirmationModal.onclick = (event) => {
+                if (event.target === confirmationModal) {
+                    confirmationModal.remove();
+                }
+            };
+        }
+
+        // --- Canvas Drawing (Graphing) ---
+
+        function drawChart(data, parameter) {
+            ctx.clearRect(0, 0, oilTrendChartCanvas.width, oilTrendChartCanvas.height);
+
+            if (data.length === 0) {
+                ctx.font = '16px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#718096';
+                ctx.fillText('No data to display. Add entries to see trends.', oilTrendChartCanvas.width / 2, oilTrendChartCanvas.height / 2);
+                return;
+            }
+
+            const validDataPoints = data.filter(entry => typeof entry[parameter] === 'number' && !isNaN(entry[parameter]));
+
+            console.log("Valid Data Points for Charting:", validDataPoints.length);
+
+            if (validDataPoints.length < 2) {
+                ctx.font = '16px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#718096';
+                ctx.fillText('Need at least 2 data points for a trend graph.', oilTrendChartCanvas.width / 2, oilTrendChartCanvas.height / 2);
+                return;
+            }
+
+            const dates = validDataPoints.map(entry => new Date(entry.dateOfSample));
+            const values = validDataPoints.map(entry => entry[parameter]);
+
+            const minValue = Math.min(...values);
+            const maxValue = Math.max(...values);
+            const valueRange = maxValue - minValue;
+
+            const canvasWidth = oilTrendChartCanvas.width;
+            const canvasHeight = oilTrendChartCanvas.height;
+            const padding = 70;
+            const titleHeight = 30;
+
+            const xScale = (canvasWidth - 2 * padding) / (dates.length - 1);
+            const yScale = (canvasHeight - 2 * padding - titleHeight) / (valueRange === 0 ? 1 : valueRange);
+
+            ctx.fillStyle = '#2b6cb0';
+            ctx.font = '18px Inter';
+            ctx.textAlign = 'center';
+            const selectedOptionText = graphParamSelect.options[graphParamSelect.selectedIndex].textContent;
+            const graphTitle = `${currentAssetName} - ${selectedOptionText}`;
+            ctx.fillText(graphTitle, canvasWidth / 2, padding / 2 + 10);
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#a0aec0';
+            ctx.lineWidth = 2;
+            ctx.moveTo(padding, canvasHeight - padding);
+            ctx.lineTo(canvasWidth - padding, canvasHeight - padding);
+            ctx.moveTo(padding, canvasHeight - padding);
+            ctx.lineTo(padding, padding + titleHeight);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#4299e1';
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            validDataPoints.forEach((entry, i) => {
+                const value = entry[parameter];
+                const x = padding + i * xScale;
+                const y = canvasHeight - padding - (value - minValue) * yScale;
+
+                console.log(`Point ${i}: x=${x}, y=${y}, value=${value}`);
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            ctx.fillStyle = '#4299e1';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            validDataPoints.forEach((entry, i) => {
+                const value = entry[parameter];
+                const x = padding + i * xScale;
+                const y = canvasHeight - padding - (value - minValue) * yScale;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#2d3748';
+                if (typeof value === 'number' && !isNaN(value)) {
+                    ctx.fillText(value.toFixed(2), x, y - 8);
+                } else {
+                    ctx.fillText('N/A', x, y - 8);
+                }
+            });
+
+
+            ctx.fillStyle = '#2d3748';
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'center';
+
+            const maxLabels = Math.floor((canvasWidth - 2 * padding) / 80);
+            const labelInterval = Math.ceil(dates.length / maxLabels);
+
+            dates.forEach((date, i) => {
+                if (i % labelInterval === 0 || i === dates.length - 1) {
+                    const x = padding + i * xScale;
+                    ctx.fillText(date.toLocaleDateString(), x, canvasHeight - padding + 20);
+                }
+            });
+
+            ctx.textAlign = 'right';
+            const numYLabels = 5;
+            const yLabelXOffset = 25;
+            for (let i = 0; i <= numYLabels; i++) {
+                const yValue = minValue + (valueRange / numYLabels) * i;
+                const y = canvasHeight - padding - (yValue - minValue) * yScale;
+                ctx.fillText(yValue.toFixed(2), padding - yLabelXOffset, y + 4);
+            }
+
+            ctx.textAlign = 'center';
+            ctx.font = '14px Inter';
+            ctx.fillText('Date of Sample', canvasWidth / 2, canvasHeight - 10);
+        }
+
+        function resizeCanvas() {
+            oilTrendChartCanvas.width = oilTrendChartCanvas.offsetWidth;
+            oilTrendChartCanvas.height = 400;
+            drawChart(allTestData, graphParamSelect.value);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // --- Site & Asset Management Event Listeners ---
+        createSiteBtn.addEventListener('click', () => {
+            console.log("Create Site button clicked!");
+            newSiteNameInput.value = '';
+            siteModal.style.display = 'flex';
+        });
+
+        closeSiteModalBtn.addEventListener('click', () => {
+            siteModal.style.display = 'none';
+        });
+
+        newSiteForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const siteName = newSiteNameInput.value.trim();
+            if (siteName) {
+                await createNewSite(siteName);
+            } else {
+                showMessageBox("Site name cannot be empty.", true);
+            }
+        });
+
+        siteSelect.addEventListener('change', (event) => {
+            const selectedSiteId = event.target.value;
+            const selectedSiteName = event.target.options[event.target.selectedIndex].text;
+            if (selectedSiteId) {
+                selectSite(selectedSiteId, selectedSiteName);
+            } else {
+                currentSiteId = null;
+                currentSiteName = 'None Selected';
+                currentSiteNameDisplay.textContent = currentSiteName;
+                currentAssetId = null;
+                currentAssetName = 'None Selected';
+                currentAssetNameDisplay.textContent = currentAssetName;
+                currentAssetDetails = {};
+                currentAssetDetailsDisplay.innerHTML = '';
+                allTestData = [];
+                filterAndDisplayData();
+                drawChart(allTestData, graphParamSelect.value);
+                showMessageBox("Please select or create a site.", true);
+            }
+        });
+
+        createAssetBtn.addEventListener('click', () => {
+            console.log("Create Asset button clicked!");
+            if (!currentSiteId) {
+                showMessageBox("Please select a site before creating an asset.", true);
+                return;
+            }
+            newAssetForm.reset();
+            assetModal.style.display = 'flex';
+        });
+
+        closeAssetModalBtn.addEventListener('click', () => {
+            assetModal.style.display = 'none';
+        });
+
+        cancelNewAssetBtn.addEventListener('click', () => {
+            assetModal.style.display = 'none';
+        });
+
+        newAssetForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const assetName = newAssetNameInput.value.trim();
+            if (assetName) {
+                await createNewAsset(assetName);
+            } else {
+                showMessageBox("Asset name cannot be empty.", true);
+            }
+        });
+
+        assetSelect.addEventListener('change', (event) => {
+            const selectedAssetId = event.target.value;
+            const selectedAssetOption = Array.from(assetSelect.options).find(opt => opt.value === selectedAssetId);
+            const selectedAssetName = selectedAssetOption ? selectedAssetOption.textContent : 'None Selected';
+
+            if (selectedAssetId) {
+                const foundAsset = window.allAssetsData.find(asset => asset.id === selectedAssetId);
+                if (foundAsset) {
+                    selectAsset(foundAsset.id, foundAsset.assetName, foundAsset);
+                } else {
+                    showMessageBox("Selected asset details not found.", true);
+                    currentAssetId = null;
+                    currentAssetName = 'None Selected';
+                    currentAssetNameDisplay.textContent = currentAssetName;
+                    currentAssetDetails = {};
+                    currentAssetDetailsDisplay.innerHTML = '';
+                    allTestData = [];
+                    filterAndDisplayData();
+                    drawChart(allTestData, graphParamSelect.value);
+                }
+
+            } else {
+                currentSiteId = null;
+                currentSiteName = 'None Selected';
+                currentSiteNameDisplay.textContent = currentSiteName;
+                currentAssetId = null;
+                currentAssetName = 'None Selected';
+                currentAssetNameDisplay.textContent = currentAssetName;
+                currentAssetDetails = {};
+                currentAssetDetailsDisplay.innerHTML = '';
+                allTestData = [];
+                filterAndDisplayData();
+                drawChart(allTestData, graphParamSelect.value);
+                showMessageBox("Please select or create an asset.", true);
+            }
+        });
+
+        deleteAssetBtn.addEventListener('click', () => {
+            console.log("Delete Asset button clicked!");
+            deleteSelectedAsset();
+        });
+
+        // --- PDF Upload and Scan Logic ---
+        uploadPdfBtn.addEventListener('click', () => {
+            if (!currentSiteId || !currentAssetId) {
+                showMessageBox("Please select a site and an asset before uploading a PDF.", true);
+                return;
+            }
+            pdfUploadModal.style.display = 'flex';
+            pdfFileInput.value = '';
+            scanPdfBtn.disabled = true;
+            pdfScanLoading.classList.add('hidden');
+            pdfScanMessage.textContent = '';
+        });
+
+        closePdfUploadModalBtn.addEventListener('click', () => {
+            pdfUploadModal.style.display = 'none';
+            pdfFileInput.value = '';
+            scanPdfBtn.disabled = true;
+            pdfScanLoading.classList.add('hidden');
+            pdfScanMessage.textContent = '';
+        });
+
+        pdfFileInput.addEventListener('change', () => {
+            if (pdfFileInput.files.length > 0) {
+                scanPdfBtn.disabled = false;
+                pdfScanMessage.textContent = `Selected file: ${pdfFileInput.files[0].name}`;
+            } else {
+                scanPdfBtn.disabled = true;
+                pdfScanMessage.textContent = '';
+            }
+        });
+
+        scanPdfBtn.addEventListener('click', async () => {
+            const file = pdfFileInput.files[0];
+            if (!file) {
+                showMessageBox("Please select a PDF file to scan.", true);
+                return;
+            }
+
+            pdfScanLoading.classList.remove('hidden');
+            pdfScanMessage.textContent = 'Scanning PDF with Gemini... This may take a moment.';
+            scanPdfBtn.disabled = true;
+
+            try {
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = async (e) => {
+                    const arrayBuffer = e.target.result;
+
+                    let binary = '';
+                    const bytes = new Uint8Array(arrayBuffer);
+                    const len = bytes.byteLength;
+                    for (let i = 0; i < len; i++) {
+                        binary += String.fromCharCode(bytes[i]);
+                    }
+                    const base64Pdf = btoa(binary);
+
+                    const prompt = `From the attached PDF, extract the following data. For each item, find the value associated with the **exact label text** provided. Format the output as a JSON object. If a value is not found or explicitly states "not analysed", use \`null\` for numeric fields and \`N/A\` for text fields, unless a specific text value is present (e.g., "PCBs not analysed.").
+
+                    **General Information:**
+                    - Find "Sample Date" and extract the date. Format it as YYYY-MM-DD.
+                    - Find "Asset No." and extract its value.
+                    - Find "Serial No." and extract its value.
+                    - Find "Make" and extract its value.
+                    - Find "Unit" and extract its value (this maps to \`type\` in the form).
+                    - Find "Volume (Litres)" and extract only the numeric value. Remove any commas.
+                    - Find "Insulating Medium" and extract its value (this maps to \`testID\` in the form).
+                    - Find "Sample Point" and extract its value.
+                    - Find "Rating" and extract only the numeric value. Remove "KVA" and any commas.
+
+                    **Oil Test Results:**
+                    - Find "Acidity (mg KOH/g)" and extract the numeric value.
+                    - Find "Withstood (kV average)" and extract the numeric value.
+                    - Find "Water Content (mg/Kg)" and extract the numeric value.
+                    - Find "Colour" and extract its value.
+                    - Find "Appearance" and extract its value.
+                    - Find "Odour" and extract its value.
+                    - Find "Sediment" and extract its value. Expected values are "Satisfactory", "Unsatisfactory", "Action Required", "Clear", or "None".
+                    - Find "Fibres" and extract its value.
+
+                    **Dissolved Gas Analysis (DGA) - For each, extract only the numeric value. Remove "Max." if present:**
+                    - Find "Hydrogen (ppm)."
+                    - Find "Methane (ppm)"
+                    - Find "Ethylene (ppm)"
+                    - Find "Ethane (ppm)"
+                    - Find "Acetylene (ppm)"
+                    - Find "Carbon Monoxide (ppm)"
+                    - Find "Carbon Dioxide (ppm)"
+                    - Find "Nitrogen (ppm)"
+                    - Find "Oxygen (ppm)"
+                    - Find "Total Combustible Gas"
+                    - Find "Total Dissolved Gas"
+                    - Find "Rogers Ratio"
+
+                    **Furan Analysis - For each, extract only the numeric value. If the document states "Furans not analysed.", set all Furan numeric fields to \`null\`:**
+                    - Find "Furans-5-hydroxy-methyl-2-furfuraldehyde"
+                    - Find "Furans-2-furfuraldehyde"
+                    - Find "Furans-2-furyl-methyl-ketone"
+                    - Find "Furans-5-methyl-2-furfuraldehyde"
+                    - Find "Furans-2-furfuryl-alcohol"
+                    - Find "Estimated Degree of Polymerisation"
+
+                    **PCB Analysis:**
+                    - Find "Polychlorinated biphenyl (ppm)" and extract its value as a string (e.g., "PCBs not analysed." or a numeric string).
+
+                    **Recommendations:**
+                    - Find "Comments" and extract its value (this maps to \`recommendations\` in the form).
+                    - Find "Action Required" and extract its value (this maps to \`dateOfNextSample\` in the form).
+
+                    Ensure all numeric values are parsed as numbers (without commas or units) and all string values are kept as text.
+                    `;
+
+                    const payload = {
+                        contents: [
+                            {
+                                role: "user",
+                                parts: [
+                                    { text: prompt },
+                                    {
+                                        inlineData: {
+                                            mimeType: "application/pdf",
+                                            data: base64Pdf
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    "dateOfSample": { "type": "STRING" },
+                                    "assetNo": { "type": "STRING" },
+                                    "serialNo": { "type": "STRING" },
+                                    "make": { "type": "STRING" },
+                                    "type": { "type": "STRING" },
+                                    "volume": { "type": "NUMBER" },
+                                    "testID": { "type": "STRING" },
+                                    "samplePoint": { "type": "STRING" },
+                                    "kVADating": { "type": "NUMBER" },
+                                    "acidity": { "type": "NUMBER" },
+                                    "dielectricStrength": { "type": "NUMBER" },
+                                    "waterContent": { "type": "NUMBER" },
+                                    "colour": { "type": "STRING" },
+                                    "appearance": { "type": "STRING" },
+                                    "odour": { "type": "STRING" },
+                                    "sediment": { "type": "STRING", "enum": ["Satisfactory", "Unsatisfactory", "Action Required", "Clear", "None", "N/A", null] },
+                                    "fibres": { "type": "STRING" },
+                                    "hydrogen": { "type": "NUMBER" },
+                                    "methane": { "type": "NUMBER" },
+                                    "ethylene": { "type": "NUMBER" },
+                                    "ethane": { "type": "NUMBER" },
+                                    "acetylene": { "type": "NUMBER" },
+                                    "carbonMonoxide": { "type": "NUMBER" },
+                                    "carbonDioxide": { "type": "NUMBER" },
+                                    "nitrogen": { "type": "NUMBER" },
+                                    "oxygen": { "type": "NUMBER" },
+                                    "totalCombustibleGas": { "type": "NUMBER" },
+                                    "totalDissolvedGas": { "type": "NUMBER" },
+                                    "rogersRatio": { "type": "NUMBER" },
+                                    "furansHydroxymethylFurfuraldehyde": { "type": "NUMBER", "nullable": true },
+                                    "furansFurfuraldehyde": { "type": "NUMBER", "nullable": true },
+                                    "furansFurylMethylKetone": { "type": "NUMBER", "nullable": true },
+                                    "furansMethylFurfuraldehyde": { "type": "NUMBER", "nullable": true },
+                                    "furansFurfurylAlcohol": { "type": "NUMBER", "nullable": true },
+                                    "estimatedDegreeOfPolymerisation": { "type": "NUMBER", "nullable": true },
+                                    "pcbsResult": { "type": "STRING" },
+                                    "recommendations": { "type": "STRING" },
+                                    "dateOfNextSample": { "type": "STRING" }
+                                },
+                                "propertyOrdering": [
+                                    "dateOfSample", "assetNo", "serialNo", "make", "type", "volume", "testID", "samplePoint", "kVADating",
+                                    "acidity", "dielectricStrength", "waterContent", "colour", "appearance", "odour", "sediment", "fibres",
+                                    "hydrogen", "methane", "ethylene", "ethane", "acetylene", "carbonMonoxide", "carbonDioxide", "nitrogen", "oxygen",
+                                    "totalCombustibleGas", "totalDissolvedGas", "rogersRatio",
+                                    "furansHydroxymethylFurfuraldehyde", "furansFurfuraldehyde", "furansFurylMethylKetone", "furansMethylFurfuraldehyde",
+                                    "furansFurfurylAlcohol", "estimatedDegreeOfPolymerisation",
+                                    "pcbsResult", "recommendations", "dateOfNextSample"
+                                ]
+                            }
+                        }
+                    };
+
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    console.log("Gemini API Response Status:", response.status, response.statusText);
+                    if (!response.ok) {
+                        const errorBody = await response.text();
+                        console.error("Gemini API Error Response Body:", errorBody);
+                        pdfScanMessage.textContent = `Error from Gemini API: ${response.status} ${response.statusText}. Details: ${errorBody.substring(0, 100)}...`;
+                        showMessageBox(`PDF scan failed: ${response.status} ${response.statusText}`, true);
+                        return;
+                    }
+
+                    const result = await response.json();
+                    console.log("Full Gemini API Result Object:", result);
+
+                    pdfScanLoading.classList.add('hidden');
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        let jsonText = result.candidates[0].content.parts[0].text;
+                        console.log("Raw JSON text from Gemini:", jsonText);
+
+                        console.log("Attempting to extract JSON string...");
+                        const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+                        let extractedJson = null;
+                        if (jsonMatch && jsonMatch[0]) {
+                            extractedJson = jsonMatch[0];
+                            console.log("Extracted JSON string (if any):", extractedJson);
+                        } else {
+                            console.log("No JSON-like string extracted, using raw text.");
+                            extractedJson = jsonText;
+                        }
+
+
+                        try {
+                            const extractedData = JSON.parse(extractedJson);
+                            console.log("Extracted Data:", extractedData);
+
+                            for (const key in extractedData) {
+                                const inputElement = document.getElementById(key);
+                                if (inputElement) {
+                                    inputElement.readOnly = false;
+                                    inputElement.disabled = false;
+
+                                    if (inputElement.tagName === 'SELECT') {
+                                        const optionExists = Array.from(inputElement.options).some(opt => opt.value === extractedData[key]);
+                                        inputElement.value = optionExists ? extractedData[key] : '';
+                                    } else {
+                                        inputElement.value = extractedData[key] !== null ? extractedData[key] : '';
+                                    }
+                                }
+                            }
+
+                            dataEntryModalTitle.textContent = 'Review Extracted Test Entry';
+                            saveEntryBtn.style.display = 'inline-block';
+                            cancelEntryBtn.textContent = 'Cancel';
+                            dataEntryModal.style.display = 'flex';
+                            pdfUploadModal.style.display = 'none';
+                            showMessageBox("Data extracted successfully! Please review and save.", false);
+
+                        } catch (parseError) {
+                            console.error("Error parsing Gemini JSON response:", parseError);
+                            pdfScanMessage.textContent = 'Error parsing extracted data. The AI response might be malformed. Please check PDF content or try again.';
+                            showMessageBox(`Error processing PDF: ${parseError.message}. Check console for raw API response.`, true);
+                        }
+                    } else {
+                        console.warn("Gemini API did not return expected content structure:", result);
+                        pdfScanMessage.textContent = 'Could not extract data from PDF. Please ensure it contains relevant information or try a different PDF.';
+                        showMessageBox("Failed to extract data from PDF: Unexpected Gemini response structure.", true);
+                    }
+                };
+                reader.onerror = (error) => {
+                    console.error("Error reading PDF file:", error);
+                    pdfScanLoading.classList.add('hidden');
+                    pdfScanMessage.textContent = 'Error reading PDF file.';
+                    showMessageBox(`Error reading PDF: ${error.message}`, true);
+                };
+            } catch (error) {
+                console.error("Error during PDF scan process:", error);
+                pdfScanLoading.classList.add('hidden');
+                pdfScanMessage.textContent = 'An unexpected error occurred during PDF scanning.';
+                showMessageBox(`PDF scan failed: ${error.message}`, true);
+            } finally {
+                scanPdfBtn.disabled = false;
+            }
+        });
+
+
+        // --- PIN Entry Logic ---
+        pinForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const enteredPin = pinInput.value;
+            if (VALID_PINS[enteredPin]) {
+                CURRENT_DATA_ID = VALID_PINS[enteredPin];
+                pinEntryModal.style.display = 'none';
+                pinError.classList.add('hidden');
+                initializeFirebase();
+                resizeCanvas();
+            } else {
+                pinError.classList.remove('hidden');
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        });
+
+        // --- Initial Setup ---
+        window.onload = function() {
+            pinEntryModal.style.display = 'flex';
+            pinInput.focus();
+        };
+    </script>
+</body>
+</html>
